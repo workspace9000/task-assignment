@@ -35,6 +35,7 @@ Na backend niektóre obszary wymagają refaktoryzacji (lepsze rozlokowanie kodu 
 Backend: enumy jako stringi dla uproszczenia i czytelności
 Podział ról na DevOps, Administrator
 Frontend: url na sztywno
+Frontent: brak zabezpieczenia przed wyjściem z formularza po wprowadzonych zmianach
 
 W katalogu jest diagram z modelem dzidziny
 
