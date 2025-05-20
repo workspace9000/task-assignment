@@ -8,7 +8,7 @@ R5  Poziom trudności 4–5: 10–30%
 R6  Poziom trudności 1–2: max 50%                            
 R7  Poziom trudności 3: max 90%     
 
-Decyzje Archi
+Decyzje Architektury itp
 
 Monolit                                                                       
 DDD z CQRS                                                                    
@@ -18,7 +18,7 @@ Command: MediatR + handlery
 Unit of Work + transakcje w pipeline MediatR  
 EF InMemory                                
 Walidacja na frontend i backend
-Za każdym razem przy zatwierdzeniu sa przesyłane wszytskie zadania usera
+Za każdym razem przy zatwierdzeniu są przesyłane wszystkie zadania usera
 
 Angular 18 (ale ze starym podejściem: moduły, bez sygnałów, komponenty importowane-nie standalone)
 
@@ -27,20 +27,21 @@ Uwagi
 Brakuje ustabilizowania pod kątem współbieżności
 Brak monitoringu logowania
 Brak autoryzacji
-Brak testów jedn
-Z braku casu nie zorbiłem stronicowania na frontendzie (jest stronicowanie na BE)
+Brak testów jednostkowych
+Z braku czasu nie zrobiłem stronicowania na frontendzie (jest stronicowanie na BE)
 Brak stylowania na froncie i brak podejścia UX (frontend ubogi; nie wyświetla np szczegółów zadania; brak w zadaniu tytuł)- głównie motoryka zrobiona
 Brak standardu i przechwytywania błędów z backendu
-Na backend niektóre obszary wymagają refaktoryzacji (lepsze rozlokowanie kodu wg warstw; enkapsulacja reguł biznseowych po stronie Query; walidacja modeli API)
+Na backend niektóre obszary wymagają refaktoryzacji (lepsze rozlokowanie kodu wg warstw; enkapsulacja reguł biznesowych po stronie Query; walidacja modeli API)
 Backend: enumy jako stringi dla uproszczenia i czytelności
 Podział ról na DevOps, Administrator
 Frontend: url na sztywno
-Frontent: brak zabezpieczenia przed wyjściem z formularza po wprowadzonych zmianach
+Frontend: brak zabezpieczenia przed wyjściem z formularza po wprowadzonych zmianach
 
-W katalogu jest diagram z modelem dzidziny
+W katalogu jest diagram z modelem dziedziny
 
 
 W razie spotkania chętnie omówię te i inne kwestie/ decyzje w projekcie.
 
 Pozdrawiam
-Tomasz Broniewski                        
+Tomasz Broniewski
+                       
