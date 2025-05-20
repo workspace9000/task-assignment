@@ -1,0 +1,227 @@
+import { Injectable } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
+import { AssignedTaskVm } from './assignment/assigned-task.vm';
+import { AvailableTaskVm } from './tasks/available-task.vm';
+import { ListAllUsersItem } from './users/list-all-users-item';
+import { AssignmentsService } from './assignments/assignments.service';
+import { TasksService } from './tasks/tasks.service';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class AppStateService {
+  constructor(
+    private tasksService: TasksService,
+    private assignmentsService: AssignmentsService
+  ) { }
+
+  private selectedUserSubject = new BehaviorSubject<ListAllUsersItem | null>(null);
+  selectedUser$ = this.selectedUserSubject.asObservable();
+
+  private assignedTasksSubject = new BehaviorSubject<AssignedTaskVm[]>([]);
+  assignedTasks$ = this.assignedTasksSubject.asObservable();
+
+  private availableTasksSubject = new BehaviorSubject<AvailableTaskVm[]>([]);
+  availableTasks$ = this.availableTasksSubject.asObservable();
+
+  private hasUnsavedChangesSubject = new BehaviorSubject<boolean>(false);
+  hasUnsavedChanges$ = this.hasUnsavedChangesSubject.asObservable();
+
+  private usersSubject = new BehaviorSubject<ListAllUsersItem[]>([]);
+  users$ = this.usersSubject.asObservable();
+
+  setUsers(users: ListAllUsersItem[]): void {
+    this.usersSubject.next(users);
+  }
+
+  setSelectedUser(user: ListAllUsersItem | null): void {
+    this.selectedUserSubject.next(user);
+  }
+
+  setAssignedTasks(tasks: AssignedTaskVm[]): void {
+    this.assignedTasksSubject.next(tasks);
+  }
+
+  setAvailableTasks(tasks: AvailableTaskVm[]): void {
+    this.availableTasksSubject.next(tasks);
+  }
+
+  addAssignedTask(task: AssignedTaskVm): void {
+    const current = this.assignedTasksSubject.getValue();
+    this.assignedTasksSubject.next([...current, task]);
+  }
+
+  removeAssignedTask(taskId: string): void {
+    const updated = this.assignedTasksSubject.getValue().filter(t => t.id !== taskId);
+    this.assignedTasksSubject.next(updated);
+  }
+
+  setHasUnsavedChanges(value: boolean): void {
+    this.hasUnsavedChangesSubject.next(value);
+  }
+
+  resetAll(): void {
+    this.selectedUserSubject.next(null);
+    this.assignedTasksSubject.next([]);
+    this.availableTasksSubject.next([]);
+    this.hasUnsavedChangesSubject.next(false);
+  }
+
+  changeSelectedUser(userId: string): void {
+    const user = this.usersSubject.getValue().find(u => u.id === userId) || null;
+    if (!user) return;
+
+    this.selectedUserSubject.next(user);
+    this.hasUnsavedChangesSubject.next(false);
+
+    this.reloadTasksForUser(user.id);
+  }
+
+
+  assignTask(taskId: string): void {
+    const user = this.selectedUserSubject.getValue();
+    if (!user) return;
+
+    const available = this.availableTasksSubject.getValue();
+    const assigned = this.assignedTasksSubject.getValue();
+
+    const task = available.find(t => t.id === taskId);
+    if (!task) return;
+
+    if (!this.isAssignmentValid(task, assigned, user)) return;
+
+    const updatedAvailable = available.map(t =>
+      t.id === taskId ? { ...t, isDisabled: true } : t
+    );
+
+
+    const newAssigned = {
+      ...task,
+      isNew: true
+    };
+
+    this.availableTasksSubject.next(updatedAvailable);
+    this.assignedTasksSubject.next([...assigned, newAssigned]);
+    this.hasUnsavedChangesSubject.next(true);
+  }
+
+  confirmAssignments(): void {
+    if (!this.hasUnsavedChangesSubject.getValue()) return;
+
+    if (!this.validateFinalAssignments()) return;
+
+    const user = this.selectedUserSubject.getValue();
+    const assigned = this.assignedTasksSubject.getValue();
+
+    if (!user || assigned.length === 0) return;
+
+    const taskIds = assigned.map(t => t.id);
+    const command = { userId: user.id, taskIds };
+
+    this.assignmentsService.assignTasks(command).subscribe({
+      next: () => {
+        this.reloadTasksForUser(user.id);
+        this.hasUnsavedChangesSubject.next(false);
+      },
+      error: (err) => {
+        console.error('Błąd podczas przypisywania zadań', err);
+      }
+    });
+  }
+
+  reloadTasksForUser(userId: string): void {
+    if (!userId) return;
+
+    this.tasksService.getAvailableTasks(userId).subscribe({
+      next: available => {
+        const availableVm: AvailableTaskVm[] = available.map(task => ({ ...task, isDisabled: false }));
+        this.availableTasksSubject.next(availableVm);
+
+        this.assignmentsService.getAssignedTasks(userId).subscribe({
+          next: assigned => {
+            const assignedVm: AssignedTaskVm[] = assigned.map(task => ({ ...task, isNew: false }));
+            this.assignedTasksSubject.next(assignedVm);
+          },
+          error: err => {
+            console.error('Błąd pobierania przypisanych zadań:', err);
+          }
+        });
+      },
+      error: err => {
+        console.error('Błąd pobierania dostępnych zadań:', err);
+      }
+    });
+  }
+
+  private isAssignmentValid(
+    candidate: AvailableTaskVm,
+    assigned: AssignedTaskVm[],
+    user: ListAllUsersItem
+  ): boolean {
+    const updated = [...assigned, candidate];
+
+    // R2: limit maksymalny
+    if (updated.length > 11) {
+      window.alert('Nie można przypisać więcej niż 11 zadań.');
+      return false;
+    }
+
+    // R3, R4: rola użytkownika vs typ zadania
+    const isDev = user.role === 'Developer';
+    const isOps = user.role === 'DevOps' || user.role === 'Administrator';
+
+    if (isDev && candidate.type !== 'Implementation') {
+      window.alert('Programista może mieć przypisane tylko zadania typu Implementacja.');
+      return false;
+    }
+
+    if (!isDev && !isOps) {
+      window.alert(`Rola użytkownika "${user.role}" nie ma uprawnień do przypisywania zadań.`);
+      return false;
+    }
+
+    return true;
+  }
+
+
+  private validateFinalAssignments(): boolean {
+    const assigned = this.assignedTasksSubject.getValue();
+    const user = this.selectedUserSubject.getValue();
+
+    if (!user || assigned.length === 0) return false;
+
+    // R2: liczba przypisań
+    if (assigned.length < 5 || assigned.length > 11) {
+      window.alert('Liczba przypisanych zadań musi zawierać się w przedziale 5–11.');
+      return false;
+    }
+
+    // R5–R7: rozkład trudności
+    const total = assigned.length;
+    const count = (levels: number[]) => assigned.filter(t => levels.includes(t.difficulty)).length;
+    const perc = (val: number) => (val / total) * 100;
+
+    const hard = perc(count([4, 5]));
+    const easy = perc(count([1, 2]));
+    const mid = perc(count([3]));
+
+    if (hard < 10 || hard > 30) {
+      window.alert('Zadania o trudności 4–5 muszą stanowić 10–30% przypisań.');
+      return false;
+    }
+
+    if (easy > 50) {
+      window.alert('Zadania o trudności 1–2 mogą stanowić maksymalnie 50% przypisań.');
+      return false;
+    }
+
+    if (mid > 90) {
+      window.alert('Zadania o trudności 3 mogą stanowić maksymalnie 90% przypisań.');
+      return false;
+    }
+
+    return true;
+  }
+
+
+}

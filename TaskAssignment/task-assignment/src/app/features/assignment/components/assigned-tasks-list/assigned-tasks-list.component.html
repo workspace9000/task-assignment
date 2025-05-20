@@ -1,0 +1,6 @@
+<div *ngFor="let task of tasks$ | async">
+    <div>
+        {{ task.type }} ({{ task.difficulty }}) - {{ task.status }}
+        <span *ngIf="task.isNew">[NOWE]</span>
+    </div>
+</div>

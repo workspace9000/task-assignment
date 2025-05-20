@@ -1,0 +1,8 @@
+<div *ngFor="let task of tasks$ | async">
+    <div>{{ task.type }} ({{ task.difficulty }}) - {{ task.status }}</div>
+    <button
+        [disabled]="task.isDisabled"
+        (click)="onAssign(task.id)">
+        Przypisz
+    </button>
+</div>

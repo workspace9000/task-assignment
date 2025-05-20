@@ -1,0 +1,12 @@
+<div class="header">
+    <label for="user">Wybierz użytkownika:</label>
+    <select id="user" (change)="onUserChange($event)">
+        <option *ngFor="let user of users$ | async" [value]="user.id">
+            {{ user.name }} ({{ user.role }})
+        </option>
+    </select>
+
+    <button [disabled]="!(hasUnsavedChanges$ | async)" (click)="onConfirm()">
+        Zatwierdź
+    </button>
+</div>
