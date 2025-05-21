@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { forkJoin, map, Observable } from 'rxjs';
-import { ListAssignedTasksForUserItem } from '../assignment/list-assigned-tasks-for-user-item';
+import { ListAssignedTasksForUserItem } from '../assignments/list-assigned-tasks-for-user-item';
 import { AssignTasksCommand } from './assign-tasks.command';
 
 @Injectable({

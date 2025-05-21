@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { AssignedTaskVm } from './assignment/assigned-task.vm';
+import { AssignedTaskVm } from './assignments/assigned-task.vm';
 import { AvailableTaskVm } from './tasks/available-task.vm';
 import { ListAllUsersItem } from './users/list-all-users-item';
-import { AssignedTasksStateService } from './assignment/assigned-tasks-state.service';
+import { AssignedTasksStateService } from './assignments/assigned-tasks-state.service';
 import { AvailableTasksStateService } from './tasks/available-tasks-state.service';
 
 @Injectable({
