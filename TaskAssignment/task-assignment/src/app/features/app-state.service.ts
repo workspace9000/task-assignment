@@ -190,7 +190,8 @@ export class AppStateService {
 
     this.assignmentsService.assignTasks(command).subscribe({
       next: () => {
-        this.resetAll();
+        this.availableTasksCache.clear();
+        this.resetAvailableTasksPagination()
         this.reloadTasksForUser(user.id);
       },
       error: (err) => {
