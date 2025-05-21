@@ -8,6 +8,8 @@ import { AssignmentContainerComponent } from './features/assignments/components/
 import { AvailableTasksListComponent } from './features/assignments/components/available-tasks-list/available-tasks-list.component';
 import { SelectUserHeaderComponent } from './features/assignments/components/select-user-header/select-user-header.component';
 import { HttpClientModule } from '@angular/common/http';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+
 
 @NgModule({
     declarations: [
@@ -19,6 +21,7 @@ import { HttpClientModule } from '@angular/common/http';
     ],
     imports: [
         BrowserModule,
+        BrowserAnimationsModule,
         HttpClientModule,
         SharedModule,
         CoreModule

@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
 import { AppStateService } from '../../../app-state.service';
 import { ListAllUsersItem } from '../../../users/list-all-users-item';
+import { MatSelectChange } from '@angular/material/select';
 
 @Component({
   selector: 'app-select-user-header',
@@ -27,9 +28,8 @@ export class SelectUserHeaderComponent implements OnInit {
     });
   }
 
-  onUserChange(event: Event): void {
-    const target = event.target as HTMLSelectElement;
-    const userId = target.value;
+  onUserChange(event: MatSelectChange): void {
+    const userId = event.value;
     if (!userId) return;
     this.appState.changeSelectedUser(userId);
   }

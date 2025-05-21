@@ -9,6 +9,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatToolbarModule } from '@angular/material/toolbar';
 
 @NgModule({
   imports: [
@@ -21,7 +22,8 @@ import { MatDividerModule } from '@angular/material/divider';
     MatDialogModule,
     MatInputModule,
     MatListModule,
-    MatDividerModule
+    MatDividerModule,
+    MatToolbarModule
   ],
   exports: [
     MatButtonModule,
@@ -32,7 +34,8 @@ import { MatDividerModule } from '@angular/material/divider';
     MatDialogModule,
     MatInputModule,
     MatListModule,
-    MatDividerModule
+    MatDividerModule,
+    MatToolbarModule
   ]
 })
 export class SharedModule { }

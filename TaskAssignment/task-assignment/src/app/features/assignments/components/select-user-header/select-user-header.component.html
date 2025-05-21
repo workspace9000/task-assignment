@@ -1,14 +1,17 @@
-<div class="header">
-    <label for="user">Wybierz użytkownika:</label>
-    <select [value]="selectedUserId" (change)="onUserChange($event)">
-        <option [value]="" selected>Wybierz osobę</option>
-        <option *ngFor="let user of users$ | async" [value]="user.id">
-            {{ user.name }} ({{ user.role }})
-        </option>
-    </select>
+<mat-toolbar color="primary" class="header">
+    <mat-form-field appearance="outline">
+        <mat-label>Wybierz użytkownika</mat-label>
+        <mat-select [value]="selectedUserId" (selectionChange)="onUserChange($event)">
+            <mat-option [value]="">Wybierz osobę</mat-option>
+            <mat-option *ngFor="let user of users$ | async" [value]="user.id">
+                {{ user.name }} ({{ user.role }})
+            </mat-option>
+        </mat-select>
+    </mat-form-field>
 
+    <span class="spacer"></span>
 
-    <button [disabled]="!(hasUnsavedChanges$ | async)" (click)="onConfirm()">
+    <button mat-raised-button color="accent" [disabled]="!(hasUnsavedChanges$ | async)" (click)="onConfirm()">
         Zatwierdź
     </button>
-</div>
+</mat-toolbar>

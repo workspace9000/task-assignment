@@ -1,6 +1,9 @@
-<div *ngFor="let task of tasks$ | async">
-    <div>
-        {{ task.type }} ({{ task.difficulty }}) - {{ task.status }}
-        <span *ngIf="task.isNew">[NOWE]</span>
-    </div>
-</div>
+<mat-list>
+    <mat-list-item *ngFor="let task of tasks$ | async">
+        <div class="task-content">
+            <strong>{{ task.type }}</strong> ({{ task.difficulty }}) — {{ task.status }}
+            <span *ngIf="task.isNew" class="new-label">[NOWE]</span>
+        </div>
+        <mat-divider></mat-divider>
+    </mat-list-item>
+</mat-list>

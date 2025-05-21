@@ -1,0 +1,22 @@
+.task-row {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  font-size: 14px;
+  gap: 12px;
+}
+
+.disabled-note {
+  color: gray;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.pagination-controls {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-bottom: 8px;
+}

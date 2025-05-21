@@ -1,0 +1,11 @@
+.task-content {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .new-label {
+    color: #ff4081; // kolor akcentu Material
+    font-weight: bold;
+  }
+}
