@@ -22,18 +22,18 @@ Za każdym razem przy zatwierdzeniu są przesyłane wszystkie zadania usera
 
 Angular 18 (ale ze starym podejściem: moduły, bez sygnałów, komponenty importowane-nie standalone)
 
-Uwagi
+Uwagi:
 
-Brakuje ustabilizowania pod kątem współbieżności
+Backend: Brakuje ustabilizowania pod kątem współbieżności
 Brak monitoringu logowania
 Brak autoryzacji
 Brak testów jednostkowych
-Z braku czasu nie zrobiłem stronicowania na frontendzie (jest stronicowanie na BE)
-Brak stylowania na froncie i brak podejścia UX (frontend ubogi; nie wyświetla np szczegółów zadania; brak w zadaniu tytuł)- głównie motoryka zrobiona
-Brak standardu i przechwytywania błędów z backendu
-Na backend niektóre obszary wymagają refaktoryzacji (lepsze rozlokowanie kodu wg warstw; enkapsulacja reguł biznesowych po stronie Query; walidacja modeli API)
+Frontend: Brakujestronicowania dla zadań przypisanych
+Frontend: Brak stylowania na froncie i brak podejścia UX (frontend ubogi; nie wyświetla np szczegółów zadania; brak w zadaniu tytułu; brak możliwości wycofania przypisania zadania itd)- głównie motoryka zrobiona
+Frontend: Brak standardu i przechwytywania błędów z backendu
+Backend: Niektóre obszary wymagają refaktoryzacji (lepsze rozlokowanie kodu wg warstw; enkapsulacja reguł biznesowych po stronie Query; walidacja modeli API)
 Backend: enumy jako stringi dla uproszczenia i czytelności
-Podział ról na DevOps, Administrator
+Design: Podział ról na DevOps, Administrator
 Frontend: url na sztywno
 Frontend: brak zabezpieczenia przed wyjściem z formularza po wprowadzonych zmianach
 Frontend: obecnie zadanie przypisane są na sztywno pobierane na kilku żądaniach stronicowania - docelowo należałoby głowny widok UI rodzielić na widok wyświetlania i widok przypisywania zadań aby uprościć logikę i obsługę UI.

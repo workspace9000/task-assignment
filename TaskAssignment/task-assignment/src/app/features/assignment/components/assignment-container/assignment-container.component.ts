@@ -14,8 +14,6 @@ export class AssignmentContainerComponent implements OnInit {
 
   constructor(
     private usersService: UsersService,
-    private tasksService: TasksService,
-    private assignmentsService: AssignmentsService,
     private appState: AppStateService
   ) { }
 
