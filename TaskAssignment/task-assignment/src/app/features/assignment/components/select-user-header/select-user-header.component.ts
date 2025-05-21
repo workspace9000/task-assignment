@@ -13,17 +13,24 @@ export class SelectUserHeaderComponent implements OnInit {
   selectedUser$!: Observable<ListAllUsersItem | null>;
   hasUnsavedChanges$!: Observable<boolean>;
 
+  selectedUserId: string = "";
+
   constructor(private appState: AppStateService) { }
 
   ngOnInit(): void {
     this.selectedUser$ = this.appState.selectedUser$;
     this.hasUnsavedChanges$ = this.appState.hasUnsavedChanges$;
     this.users$ = this.appState.users$;
+
+    this.selectedUser$.subscribe(user => {
+      this.selectedUserId = user?.id ?? "";
+    });
   }
 
   onUserChange(event: Event): void {
     const target = event.target as HTMLSelectElement;
     const userId = target.value;
+    if (!userId) return;
     this.appState.changeSelectedUser(userId);
   }
 

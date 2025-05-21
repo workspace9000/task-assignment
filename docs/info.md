@@ -36,6 +36,8 @@ Backend: enumy jako stringi dla uproszczenia i czytelności
 Podział ról na DevOps, Administrator
 Frontend: url na sztywno
 Frontend: brak zabezpieczenia przed wyjściem z formularza po wprowadzonych zmianach
+Frontend: obecnie zadanie przypisane są na sztywno pobierane na kilku żądaniach stronicowania - docelowo należałoby głowny widok UI rodzielić na widok wyświetlania i widok przypisywania zadań aby uprościć logikę i obsługę UI.
+Frontend; Wymaga refaktoryzacji w kierunku podziału logiki sgodnie z zasada SRP (walidacja, zadani dostępne, zadania przypisane, użytkownicy)
 
 W katalogu jest diagram z modelem dziedziny
 

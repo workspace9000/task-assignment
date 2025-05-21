@@ -12,9 +12,9 @@ public class UserTaskAssigmentsQueryRepository : IUserTaskAssigmentsQueryReposit
         _dbContext = dbContext;
     }
 
-    public Task<List<ListAssignedTasksForUserItem>> GetAssignedTasksForUserAsync(ListAssignedTasksForUserQuery query, CancellationToken cancellationToken)
+    public async Task<List<ListAssignedTasksForUserItem>> GetAssignedTasksForUserAsync(ListAssignedTasksForUserQuery query, CancellationToken cancellationToken)
     {
-        return (
+        var result = (
                 from a in _dbContext.UserTaskAssignments
                 join t in _dbContext.TaskItems on a.TaskId equals t.Id
                 where a.UserId == query.UserId
@@ -30,5 +30,9 @@ public class UserTaskAssigmentsQueryRepository : IUserTaskAssigmentsQueryReposit
             .Skip(query.Page * 10)
             .Take(10)
             .ToListAsync(cancellationToken);
+
+        var tt = await result;
+
+        return tt;
     }
 }

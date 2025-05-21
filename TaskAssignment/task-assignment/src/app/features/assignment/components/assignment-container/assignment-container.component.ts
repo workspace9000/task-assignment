@@ -21,29 +21,11 @@ export class AssignmentContainerComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadUsers();
-    this.appState.selectedUser$
-      .subscribe(user => {
-        if (user) {
-          this.loadTasksForUser(user.id);
-        }
-      });
   }
 
   private loadUsers(): void {
     this.usersService.getUsers().subscribe(users => {
       this.appState.setUsers(users);
-    });
-  }
-
-  // Wywołane przez changeSelectedUser
-  loadTasksForUser(userId: string): void {
-    this.tasksService.getAvailableTasks(userId).pipe(
-      switchMap(available => {
-        this.appState.setAvailableTasks(available);
-        return this.assignmentsService.getAssignedTasks(userId);
-      })
-    ).subscribe(assigned => {
-      this.appState.setAssignedTasks(assigned);
     });
   }
 }

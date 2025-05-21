@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { AssignedTaskVm } from './assignment/assigned-task.vm';
 import { AvailableTaskVm } from './tasks/available-task.vm';
 import { ListAllUsersItem } from './users/list-all-users-item';
@@ -15,14 +15,75 @@ export class AppStateService {
     private assignmentsService: AssignmentsService
   ) { }
 
+  private availableTasksCache = new Map<number, AvailableTaskVm[]>();
+  private availableTasksPagination = {
+    page: 0,
+    pageSize: 10,
+    tasks$: new BehaviorSubject<AvailableTaskVm[]>([])
+  };
+
+  private loadAvailableTasksPage(): void {
+    const user = this.selectedUserSubject.getValue();
+    const page = this.availableTasksPagination.page;
+    if (!user) return;
+
+    const assignedNewIds = new Set(
+      this.assignedTasksSubject.getValue()
+        .filter(t => t.isNew)
+        .map(t => t.id)
+    );
+
+    const emitPageWithFlags = (raw: AvailableTaskVm[]) => {
+      const pageWithFlags = raw.map(task => ({
+        ...task,
+        isDisabled: assignedNewIds.has(task.id)
+      }));
+      this.availableTasksPagination.tasks$.next(pageWithFlags);
+    };
+
+    if (this.availableTasksCache.has(page)) {
+      emitPageWithFlags(this.availableTasksCache.get(page)!);
+      return;
+    }
+
+    this.tasksService.getAvailableTasks(user.id, page).subscribe({
+      next: tasks => {
+        const cacheable = tasks.map(t => ({ ...t, isDisabled: false }));
+        this.availableTasksCache.set(page, cacheable);
+        emitPageWithFlags(cacheable);
+      },
+      error: err => console.error('Błąd ładowania zadań:', err)
+    });
+  }
+
+  nextAvailableTasksPage(): void {
+    this.availableTasksPagination.page++;
+    this.loadAvailableTasksPage();
+  }
+
+  prevAvailableTasksPage(): void {
+    if (this.availableTasksPagination.page > 0) {
+      this.availableTasksPagination.page--;
+      this.loadAvailableTasksPage();
+    }
+  }
+
+  private resetAvailableTasksPagination(): void {
+    this.availableTasksPagination.page = 0;
+  }
+
+  // -----
+
+
   private selectedUserSubject = new BehaviorSubject<ListAllUsersItem | null>(null);
   selectedUser$ = this.selectedUserSubject.asObservable();
 
   private assignedTasksSubject = new BehaviorSubject<AssignedTaskVm[]>([]);
   assignedTasks$ = this.assignedTasksSubject.asObservable();
 
-  private availableTasksSubject = new BehaviorSubject<AvailableTaskVm[]>([]);
-  availableTasks$ = this.availableTasksSubject.asObservable();
+  get availableTasks$(): Observable<AvailableTaskVm[]> {
+    return this.availableTasksPagination.tasks$.asObservable();
+  }
 
   private hasUnsavedChangesSubject = new BehaviorSubject<boolean>(false);
   hasUnsavedChanges$ = this.hasUnsavedChangesSubject.asObservable();
@@ -42,10 +103,6 @@ export class AppStateService {
     this.assignedTasksSubject.next(tasks);
   }
 
-  setAvailableTasks(tasks: AvailableTaskVm[]): void {
-    this.availableTasksSubject.next(tasks);
-  }
-
   addAssignedTask(task: AssignedTaskVm): void {
     const current = this.assignedTasksSubject.getValue();
     this.assignedTasksSubject.next([...current, task]);
@@ -60,11 +117,12 @@ export class AppStateService {
     this.hasUnsavedChangesSubject.next(value);
   }
 
-  resetAll(): void {
+  private resetAll(): void {
     this.selectedUserSubject.next(null);
     this.assignedTasksSubject.next([]);
-    this.availableTasksSubject.next([]);
     this.hasUnsavedChangesSubject.next(false);
+    this.availableTasksCache.clear();
+    this.resetAvailableTasksPagination();
   }
 
   changeSelectedUser(userId: string): void {
@@ -73,6 +131,7 @@ export class AppStateService {
 
     this.selectedUserSubject.next(user);
     this.hasUnsavedChangesSubject.next(false);
+    this.availableTasksCache.clear();
 
     this.reloadTasksForUser(user.id);
   }
@@ -82,28 +141,39 @@ export class AppStateService {
     const user = this.selectedUserSubject.getValue();
     if (!user) return;
 
-    const available = this.availableTasksSubject.getValue();
+    const currentPage = this.availableTasksPagination.tasks$.getValue();
     const assigned = this.assignedTasksSubject.getValue();
 
-    const task = available.find(t => t.id === taskId);
+    const task = currentPage.find(t => t.id === taskId);
     if (!task) return;
 
     if (!this.isAssignmentValid(task, assigned, user)) return;
 
-    const updatedAvailable = available.map(t =>
+    const updatedPage = currentPage.map(t =>
       t.id === taskId ? { ...t, isDisabled: true } : t
     );
 
+    this.availableTasksPagination.tasks$.next(updatedPage);
 
-    const newAssigned = {
+    const cached = this.availableTasksCache.get(this.availableTasksPagination.page);
+    if (cached) {
+      this.availableTasksCache.set(
+        this.availableTasksPagination.page,
+        cached.map(t =>
+          t.id === taskId ? { ...t, isDisabled: true } : t
+        )
+      );
+    }
+
+    const newAssigned: AssignedTaskVm = {
       ...task,
       isNew: true
     };
 
-    this.availableTasksSubject.next(updatedAvailable);
     this.assignedTasksSubject.next([...assigned, newAssigned]);
     this.hasUnsavedChangesSubject.next(true);
   }
+
 
   confirmAssignments(): void {
     if (!this.hasUnsavedChangesSubject.getValue()) return;
@@ -120,8 +190,8 @@ export class AppStateService {
 
     this.assignmentsService.assignTasks(command).subscribe({
       next: () => {
+        this.resetAll();
         this.reloadTasksForUser(user.id);
-        this.hasUnsavedChangesSubject.next(false);
       },
       error: (err) => {
         console.error('Błąd podczas przypisywania zadań', err);
@@ -129,29 +199,23 @@ export class AppStateService {
     });
   }
 
-  reloadTasksForUser(userId: string): void {
+  private reloadTasksForUser(userId: string): void {
     if (!userId) return;
 
-    this.tasksService.getAvailableTasks(userId).subscribe({
-      next: available => {
-        const availableVm: AvailableTaskVm[] = available.map(task => ({ ...task, isDisabled: false }));
-        this.availableTasksSubject.next(availableVm);
+    this.resetAvailableTasksPagination();
+    this.loadAvailableTasksPage();
 
-        this.assignmentsService.getAssignedTasks(userId).subscribe({
-          next: assigned => {
-            const assignedVm: AssignedTaskVm[] = assigned.map(task => ({ ...task, isNew: false }));
-            this.assignedTasksSubject.next(assignedVm);
-          },
-          error: err => {
-            console.error('Błąd pobierania przypisanych zadań:', err);
-          }
-        });
+    this.assignmentsService.getAssignedTasks(userId).subscribe({
+      next: assigned => {
+        const assignedVm: AssignedTaskVm[] = assigned.map(task => ({ ...task, isNew: false }));
+        this.assignedTasksSubject.next(assignedVm);
       },
       error: err => {
-        console.error('Błąd pobierania dostępnych zadań:', err);
+        console.error('Błąd pobierania przypisanych zadań:', err);
       }
     });
   }
+
 
   private isAssignmentValid(
     candidate: AvailableTaskVm,

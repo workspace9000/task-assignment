@@ -17,6 +17,15 @@ export class AvailableTasksListComponent implements OnInit {
     this.tasks$ = this.appState.availableTasks$;
   }
 
+  nextPage(): void {
+    this.appState.nextAvailableTasksPage();
+  }
+
+  prevPage(): void {
+    this.appState.prevAvailableTasksPage();
+  }
+
+
   onAssign(taskId: string): void {
     this.appState.assignTask(taskId);
   }

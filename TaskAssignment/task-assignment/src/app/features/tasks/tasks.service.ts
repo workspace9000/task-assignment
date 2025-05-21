@@ -11,10 +11,16 @@ export class TasksService {
 
   constructor(private http: HttpClient) { }
 
-  getAvailableTasks(userId: string): Observable<ListAvailableTasksForUserItem[]> {
+  getAvailableTasks(userId: string, page: number): Observable<ListAvailableTasksForUserItem[]> {
     return this.http.get<ListAvailableTasksForUserItem[]>(
       `${this.baseUrl}/available`,
-      { params: { userId } }
+      {
+        params: {
+          userId,
+          page: page.toString()
+        }
+      }
     );
   }
+
 }

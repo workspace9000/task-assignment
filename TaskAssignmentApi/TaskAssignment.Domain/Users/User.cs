@@ -24,7 +24,7 @@ public class User
         Assignments.Clear();
         foreach (var taskId in newTaskIds)
         {
-            Assignments.Add(new UserTaskAssignment(Id, taskId));
+            Assignments.Add(new UserTaskAssignment(taskId, Id));
         }
     }
 }
