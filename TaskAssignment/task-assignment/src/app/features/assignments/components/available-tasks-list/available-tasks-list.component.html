@@ -1,20 +1,17 @@
-<div class="pagination-controls">
+<div class="pagination-bar">
     <button mat-stroked-button (click)="prevPage()">Poprzednia</button>
     <button mat-stroked-button (click)="nextPage()">Następna</button>
 </div>
 
-<mat-list>
-    <mat-list-item *ngFor="let task of tasks$ | async">
+<div class="task-list">
+    <div class="task-container" *ngFor="let task of tasks$ | async">
         <div class="task-row">
             <span>{{ task.type }} ({{ task.difficulty }}) — {{ task.status }}</span>
             <span *ngIf="task.isDisabled" class="disabled-note">[Zablokowane]</span>
-
             <span class="spacer"></span>
-
-            <button mat-button color="primary" (click)="onAssign(task.id)" [disabled]="task.isDisabled">
+            <button mat-raised-button color="primary" (click)="onAssign(task.id)" [disabled]="task.isDisabled">
                 Przypisz
             </button>
         </div>
-        <mat-divider></mat-divider>
-    </mat-list-item>
-</mat-list>
+    </div>
+</div>

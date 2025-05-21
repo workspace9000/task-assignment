@@ -38,6 +38,11 @@ export class AppStateService {
   }
 
   changeSelectedUser(userId: string): void {
+    if (this.assignedTasksState.hasUnsavedChanges()) {
+      alert('Masz przypisania w toku.');
+      return;
+    }
+
     const user = this.usersSubject.getValue().find(u => u.id === userId) || null;
     if (!user) return;
 

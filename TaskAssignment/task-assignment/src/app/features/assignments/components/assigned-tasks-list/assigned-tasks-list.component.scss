@@ -1,11 +1,20 @@
-.task-content {
-  width: 100%;
+.task-container {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin-bottom: 8px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  background-color: #fff;
+}
+
+.task-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  font-size: 14px;
+}
 
-  .new-label {
-    color: #ff4081; // kolor akcentu Material
-    font-weight: bold;
-  }
+.new-label {
+  color: #ff4081;
+  font-weight: bold;
 }

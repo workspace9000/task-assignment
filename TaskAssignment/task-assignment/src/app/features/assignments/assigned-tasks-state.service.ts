@@ -60,18 +60,20 @@ export class AssignedTasksStateService {
     );
   }
 
+  hasUnsavedChanges(): boolean {
+    return this.hasUnsavedChangesSubject.getValue();
+  }
+
   loadAssignments(userId: string): Observable<AssignedTaskVm[]> {
     return this.assignmentsService.getAssignedTasks(userId).pipe(
       map(assigned => assigned.map(t => ({ ...t, isNew: false })))
     );
   }
 
-
   isAssignmentAllowed(task: AvailableTaskVm, user: ListAllUsersItem): boolean {
     const assigned = this.assignedTasksSubject.getValue();
     return this.assignmentValidation.isAssignmentAllowed(task, assigned, user);
   }
-
 
   markUnsavedChanges(): void {
     this.hasUnsavedChangesSubject.next(true);
