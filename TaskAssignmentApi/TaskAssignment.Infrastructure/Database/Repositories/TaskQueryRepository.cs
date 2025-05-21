@@ -14,9 +14,11 @@ public class TaskQueryRepository : ITaskQueryRepository
         _dbContext = dbContext;
     }
 
-    public Task<List<ListAvailableTasksForUserItem>> GetAvailableTasksForUserAsync(ListAvailableTasksForUserQuery queryParams, CancellationToken cancellationToken)
+    public async Task<ListAvailableTasksForUser> GetAvailableTasksForUserAsync(ListAvailableTasksForUserQuery queryParams, CancellationToken cancellationToken)
     {
-        var query =
+        const int PageSize = 10;
+
+        var baseQuery =
             from t in _dbContext.TaskItems
             join a in _dbContext.UserTaskAssignments on t.Id equals a.TaskId into assigned
             from a in assigned.DefaultIfEmpty()
@@ -25,18 +27,28 @@ public class TaskQueryRepository : ITaskQueryRepository
                 (u.Role == UserRoles.Developer && t.Type == TaskTypes.Implementation) ||
                 (u.Role == UserRoles.DevOps || u.Role == UserRoles.Administrator)
             )
-            orderby t.Difficulty descending, t.Id
-            select new ListAvailableTasksForUserItem
+            select t;
+
+        var totalCount = await baseQuery.CountAsync(cancellationToken);
+        var totalPages = (int)Math.Ceiling(totalCount / (double)PageSize);
+
+        var items = await baseQuery
+            .OrderByDescending(t => t.Difficulty).ThenBy(t => t.Id)
+            .Skip(queryParams.Page * PageSize)
+            .Take(PageSize)
+            .Select(t => new ListAvailableTasksForUserItem
             {
                 Id = t.Id,
                 Difficulty = t.Difficulty,
                 Type = t.Type.ToString(),
                 Status = t.Status.ToString()
-            };
-
-        return query
-            .Skip(queryParams.Page * 10)
-            .Take(10)
+            })
             .ToListAsync(cancellationToken);
+
+        return new ListAvailableTasksForUser
+        {
+            Items = items,
+            TotalPages = totalPages
+        };
     }
 }

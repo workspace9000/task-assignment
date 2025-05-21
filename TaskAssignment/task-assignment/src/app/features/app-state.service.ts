@@ -19,6 +19,7 @@ export class AppStateService {
   private availableTasksPagination = {
     page: 0,
     pageSize: 10,
+    availableTasksTotalCount: 0,
     tasks$: new BehaviorSubject<AvailableTaskVm[]>([])
   };
 
@@ -48,7 +49,8 @@ export class AppStateService {
 
     this.tasksService.getAvailableTasks(user.id, page).subscribe({
       next: tasks => {
-        const cacheable = tasks.map(t => ({ ...t, isDisabled: false }));
+        this.availableTasksPagination.availableTasksTotalCount = tasks.totalPages;
+        const cacheable = tasks.items.map(t => ({ ...t, isDisabled: false }));
         this.availableTasksCache.set(page, cacheable);
         emitPageWithFlags(cacheable);
       },
@@ -57,6 +59,10 @@ export class AppStateService {
   }
 
   nextAvailableTasksPage(): void {
+    var reqPage = this.availableTasksPagination.page + 2;
+    if (reqPage > this.availableTasksPagination.availableTasksTotalCount) {
+      return;
+    }
     this.availableTasksPagination.page++;
     this.loadAvailableTasksPage();
   }

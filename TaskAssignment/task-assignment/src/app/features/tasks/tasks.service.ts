@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { ListAvailableTasksForUserItem } from './list-available-tasks-for-user-item';
+import { ListAvailableTasksForUser } from './ListAvailableTasksForUser';
 
 @Injectable({
   providedIn: 'root'
@@ -11,8 +11,8 @@ export class TasksService {
 
   constructor(private http: HttpClient) { }
 
-  getAvailableTasks(userId: string, page: number): Observable<ListAvailableTasksForUserItem[]> {
-    return this.http.get<ListAvailableTasksForUserItem[]>(
+  getAvailableTasks(userId: string, page: number): Observable<ListAvailableTasksForUser> {
+    return this.http.get<ListAvailableTasksForUser>(
       `${this.baseUrl}/available`,
       {
         params: {

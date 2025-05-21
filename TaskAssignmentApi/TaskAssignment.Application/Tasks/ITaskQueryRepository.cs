@@ -2,5 +2,5 @@
 
 public interface ITaskQueryRepository
 {
-    Task<List<ListAvailableTasksForUserItem>> GetAvailableTasksForUserAsync(ListAvailableTasksForUserQuery queryParams, CancellationToken cancellationToken);
+    Task<ListAvailableTasksForUser> GetAvailableTasksForUserAsync(ListAvailableTasksForUserQuery queryParams, CancellationToken cancellationToken);
 }

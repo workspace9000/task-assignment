@@ -2,7 +2,7 @@
 
 namespace TaskAssignment.Application.Tasks;
 
-public class ListAvailableTasksForUserQueryHandler : IRequestHandler<ListAvailableTasksForUserQuery, List<ListAvailableTasksForUserItem>>
+public class ListAvailableTasksForUserQueryHandler : IRequestHandler<ListAvailableTasksForUserQuery, ListAvailableTasksForUser>
 {
     private readonly ITaskQueryRepository _taskQueryRepository;
 
@@ -11,16 +11,22 @@ public class ListAvailableTasksForUserQueryHandler : IRequestHandler<ListAvailab
         _taskQueryRepository = taskQueryRepository;
     }
 
-    public Task<List<ListAvailableTasksForUserItem>> Handle(ListAvailableTasksForUserQuery query, CancellationToken cancellationToken)
+    public Task<ListAvailableTasksForUser> Handle(ListAvailableTasksForUserQuery query, CancellationToken cancellationToken)
     {
         return _taskQueryRepository.GetAvailableTasksForUserAsync(query, cancellationToken);
     }
 }
 
-public class ListAvailableTasksForUserQuery : IRequest<List<ListAvailableTasksForUserItem>>
+public class ListAvailableTasksForUserQuery : IRequest<ListAvailableTasksForUser>
 {
     public Guid UserId { get; set; }
     public int Page { get; set; }
+}
+
+public class ListAvailableTasksForUser
+{
+    public List<ListAvailableTasksForUserItem> Items { get; set; } = new List<ListAvailableTasksForUserItem>();
+    public int TotalPages { get; set; }
 }
 
 public class ListAvailableTasksForUserItem
